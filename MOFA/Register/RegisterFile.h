@@ -1,11 +1,11 @@
 #pragma once
-#include "Register.h"
+#include "Register.hpp"
 #include <string_view>
 
 namespace MOFA {
-    class RegFile {
+    class RegisterFile {
     public:
-        RegFile();
+        RegisterFile();
         Register findReg(const std::string_view _name) const noexcept;
 
     private:

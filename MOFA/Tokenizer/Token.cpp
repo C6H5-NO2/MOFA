@@ -1,10 +1,12 @@
 #include "Token.h"
-#include "../Architecture/Architecture.h"
+#include "../Utility/Global.h"
+#include "../Register/RegisterFile.h"
+#include "../Instruction/InstructionSet.h"
 #include <regex>
 
 namespace MOFA {
     namespace {
-        TokenType matchType(const std::string_view _candidate) {
+        TokenType matchType(const std::string& _candidate) {
             auto len = _candidate.length();
             if(!len)
                 return TokenType::ERROR; // Tokenizer Error
@@ -14,7 +16,7 @@ namespace MOFA {
             if(firstchr == '#')
                 return TokenType::COMMENT;
 
-            // is unary operator?
+            // is symbol?
             if(len == 1)
                 switch(firstchr) {
                         //case '+': return TokenType::POSITIVE;
@@ -27,8 +29,22 @@ namespace MOFA {
                     default: break;
                 }
 
+            // todo: process char literals
+            if(firstchr == '\'') {
+                return TokenType::ERROR;
+            }
+
+            // is register?
+            if(firstchr == '$') {
+                auto reg = Global::getRegisterFile()->findReg(_candidate);
+                switch(reg.type) {
+                    case RegisterType::GPR: return TokenType::GEN_PUR_REG;
+                    case RegisterType::VR: return TokenType::VEC_REG;
+                    default: return TokenType::ERROR;
+                }
+            }
+
             // is integer?
-            // todo: debug test this
             errno = 0;
             char* endptr = nullptr;
             const auto llval = std::strtoll(_candidate.data(), &endptr, 0);
@@ -53,19 +69,9 @@ namespace MOFA {
                 return TokenType::ERROR;
             }
 
-            auto& arch = Architecture::getInstance();
-
-            // is register?
-            if(firstchr == '$') {
-                auto reg = arch.getRegFile().findReg(_candidate);
-                switch(reg.type) {
-                    case RegisterType::GPR: return TokenType::GEN_PUR_REG;
-                    case RegisterType::VR: return TokenType::VEC_REG;
-                    default: return TokenType::ERROR;
-                }
-            }
-
             // is instruction?
+            //auto instr = Global::instrset->findInstr(_candidate);
+            // todo: check instr
 
             // is identifier?
             std::cmatch ma;

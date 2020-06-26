@@ -1,7 +1,7 @@
-#include "RegFile.h"
+#include "RegisterFile.h"
 
 namespace MOFA {
-    RegFile::RegFile() : gprs{
+    RegisterFile::RegisterFile() : gprs{
         Register("$zero", 0, RegisterType::GPR),
         Register("$at", 1, RegisterType::GPR),
         Register("$v0", 2, RegisterType::GPR),
@@ -34,7 +34,9 @@ namespace MOFA {
         Register("$sp", 29, RegisterType::GPR),
         Register("$fp", 30, RegisterType::GPR),
         Register("$ra", 31, RegisterType::GPR)
-    } {}
+    } {
+        puts("RegFile init");
+    }
 
 
     namespace {
@@ -59,7 +61,7 @@ namespace MOFA {
     }
 
 
-    Register RegFile::findReg(const std::string_view _name) const noexcept {
+    Register RegisterFile::findReg(const std::string_view _name) const noexcept {
         const auto len = _name.length();
         if(len < 2 || len > 0 && _name[0] != '$')
             return Register("", -1, RegisterType::ERROR);
