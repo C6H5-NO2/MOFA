@@ -1,85 +1,78 @@
 #include "RegisterFile.h"
 
 namespace MOFA {
-    RegisterFile::RegisterFile() : gprs{
-        Register("$zero", 0, RegisterType::GPR),
-        Register("$at", 1, RegisterType::GPR),
-        Register("$v0", 2, RegisterType::GPR),
-        Register("$v1", 3, RegisterType::GPR),
-        Register("$a0", 4, RegisterType::GPR),
-        Register("$a1", 5, RegisterType::GPR),
-        Register("$a2", 6, RegisterType::GPR),
-        Register("$a3", 7, RegisterType::GPR),
-        Register("$t0", 8, RegisterType::GPR),
-        Register("$t1", 9, RegisterType::GPR),
-        Register("$t2", 10, RegisterType::GPR),
-        Register("$t3", 11, RegisterType::GPR),
-        Register("$t4", 12, RegisterType::GPR),
-        Register("$t5", 13, RegisterType::GPR),
-        Register("$t6", 14, RegisterType::GPR),
-        Register("$t7", 15, RegisterType::GPR),
-        Register("$s0", 16, RegisterType::GPR),
-        Register("$s1", 17, RegisterType::GPR),
-        Register("$s2", 18, RegisterType::GPR),
-        Register("$s3", 19, RegisterType::GPR),
-        Register("$s4", 20, RegisterType::GPR),
-        Register("$s5", 21, RegisterType::GPR),
-        Register("$s6", 22, RegisterType::GPR),
-        Register("$s7", 23, RegisterType::GPR),
-        Register("$t8", 24, RegisterType::GPR),
-        Register("$t9", 25, RegisterType::GPR),
-        Register("$k0", 26, RegisterType::GPR),
-        Register("$k1", 27, RegisterType::GPR),
-        Register("$gp", 28, RegisterType::GPR),
-        Register("$sp", 29, RegisterType::GPR),
-        Register("$fp", 30, RegisterType::GPR),
-        Register("$ra", 31, RegisterType::GPR)
-    } {
-        puts("RegFile init");
-    }
+    RegisterFile::RegisterFile() : registers{
+        Register("$zero", 0),
+        Register("$at", 1),
+        Register("$v0", 2),
+        Register("$v1", 3),
+        Register("$a0", 4),
+        Register("$a1", 5),
+        Register("$a2", 6),
+        Register("$a3", 7),
+        Register("$t0", 8),
+        Register("$t1", 9),
+        Register("$t2", 10),
+        Register("$t3", 11),
+        Register("$t4", 12),
+        Register("$t5", 13),
+        Register("$t6", 14),
+        Register("$t7", 15),
+        Register("$s0", 16),
+        Register("$s1", 17),
+        Register("$s2", 18),
+        Register("$s3", 19),
+        Register("$s4", 20),
+        Register("$s5", 21),
+        Register("$s6", 22),
+        Register("$s7", 23),
+        Register("$t8", 24),
+        Register("$t9", 25),
+        Register("$k0", 26),
+        Register("$k1", 27),
+        Register("$gp", 28),
+        Register("$sp", 29),
+        Register("$fp", 30),
+        Register("$ra", 31),
+        Register("$0", 0),
+        Register("$1", 1),
+        Register("$2", 2),
+        Register("$3", 3),
+        Register("$4", 4),
+        Register("$5", 5),
+        Register("$6", 6),
+        Register("$7", 7),
+        Register("$8", 8),
+        Register("$9", 9),
+        Register("$10", 10),
+        Register("$11", 11),
+        Register("$12", 12),
+        Register("$13", 13),
+        Register("$14", 14),
+        Register("$15", 15),
+        Register("$16", 16),
+        Register("$17", 17),
+        Register("$18", 18),
+        Register("$19", 19),
+        Register("$20", 20),
+        Register("$21", 21),
+        Register("$22", 22),
+        Register("$23", 23),
+        Register("$24", 24),
+        Register("$25", 25),
+        Register("$26", 26),
+        Register("$27", 27),
+        Register("$28", 28),
+        Register("$29", 29),
+        Register("$30", 30),
+        Register("$31", 31)
+    } {}
 
 
-    namespace {
-        uint8_t strToUint5Strict(const std::string_view _str) noexcept {
-            const auto len = _str.length();
-            if(len == 0 || len > 2)
-                return -1;
-            auto ten = _str[0], unit = _str.back();
-            if(!isdigit(ten) || !isdigit(unit))
-                return -1;
-
-            ten -= '0';
-            unit -= '0';
-            if(len == 1)
-                return unit;
-
-            const auto num = ten * 10 + unit;
-            if(num < 10 || num > 31)
-                return -1;
-            return num;
-        }
-    }
-
-
-    Register RegisterFile::findReg(const std::string_view _name) const noexcept {
-        const auto len = _name.length();
-        if(len < 2 || len > 0 && _name[0] != '$')
-            return Register("", -1, RegisterType::ERROR);
-
-        // match patten $w0-$w31
-        if(len > 2 && _name[1] == 'w')
-            if(auto n = strToUint5Strict(_name.substr(2)); n < 32)
-                return Register(std::string(_name), n, RegisterType::VR);
-
-        // match patten $0-$31
-        if(auto n = strToUint5Strict(_name.substr(1)); n < 32)
-            return Register(std::string(_name), n, RegisterType::GPR);
-
-        // match name of GPRs
-        for(const auto& gpr : gprs)
-            if(gpr.name == _name)
-                return gpr;
-
-        return Register("", -1, RegisterType::ERROR);
+    Register RegisterFile::findRegister(const std::string_view _name) const noexcept {
+        for(const auto& reg : registers)
+            if(reg.name == _name)
+                return reg;
+        return Register(nullptr, -1);
     }
 }

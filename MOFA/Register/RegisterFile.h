@@ -6,9 +6,11 @@ namespace MOFA {
     class RegisterFile {
     public:
         RegisterFile();
-        Register findReg(const std::string_view _name) const noexcept;
+
+        /// @return Register(nullptr, -1) if not found
+        Register findRegister(const std::string_view _name) const noexcept;
 
     private:
-        Register gprs[32];
+        Register registers[64];
     };
 }

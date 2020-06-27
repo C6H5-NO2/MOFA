@@ -19,29 +19,23 @@ namespace MOFA {
             // is symbol?
             if(len == 1)
                 switch(firstchr) {
-                        //case '+': return TokenType::POSITIVE;
-                        //case '-': return TokenType::NEGATIVE;
                     case ':': return TokenType::COLON;
                     case '(': return TokenType::PAREN_L;
                     case ')': return TokenType::PAREN_R;
-                    case '[': return TokenType::BRACKET_L;
-                    case ']': return TokenType::BRACKET_R;
                     default: break;
                 }
 
-            // todo: process char literals
+            // todo/bug: process char literals
             if(firstchr == '\'') {
-                return TokenType::ERROR;
+                return TokenType::UNSUPPORTED_CHAR_CANDIDATE;
             }
 
             // is register?
             if(firstchr == '$') {
-                auto reg = Global::getRegisterFile()->findReg(_candidate);
-                switch(reg.type) {
-                    case RegisterType::GPR: return TokenType::GEN_PUR_REG;
-                    case RegisterType::VR: return TokenType::VEC_REG;
-                    default: return TokenType::ERROR;
-                }
+                auto reg = Global::getRegisterFile()->findRegister(_candidate);
+                if(reg.no < 32)
+                    return TokenType::GEN_PUR_REG;
+                return TokenType::ERROR;
             }
 
             // is integer?
@@ -58,32 +52,34 @@ namespace MOFA {
                         if(llval <= UINT16_MAX)
                             return TokenType::UINT16;
                         if(llval <= UINT32_MAX)
-                            return TokenType::UINT32;
+                            return TokenType::UNSUPPORTED_UINT32;
                         return TokenType::ERROR;
                     }
                     if(llval >= INT16_MIN)
                         return TokenType::INT16;
                     if(llval >= INT32_MIN)
-                        return TokenType::INT32;
+                        return TokenType::UNSUPPORTED_INT32;
                 }
                 return TokenType::ERROR;
             }
 
             // is instruction?
-            //auto instr = Global::instrset->findInstr(_candidate);
-            // todo: check instr
+            if(Global::getInstructionSet()->findInstruction(_candidate).name != nullptr)
+                return TokenType::INSTRUCTION;
 
-            // is identifier?
+            // is label?
             std::cmatch ma;
             std::regex re("^[_a-zA-Z][_a-zA-Z0-9]*");
             if(std::regex_match(_candidate.data(), ma, re))
-                return TokenType::IDENTIFIER;
+                return TokenType::LABEL;
 
             return TokenType::ERROR;
         }
     }
 
 
-    Token::Token(const std::string_view _token) : token(_token),
-                                                  type(matchType(token)) {}
+    Token::Token(const std::string_view _token,
+                 const unsigned _line) : token(_token),
+                                         line(_line),
+                                         type(matchType(token)) {}
 }

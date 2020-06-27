@@ -2,66 +2,62 @@
 #include "Token.h"
 #include "../Utility/StringViewBuffer.hpp"
 #include "../Utility/ErrorMessage.hpp"
-#include "../SourceCode/SourceLine.hpp"
 
 namespace MOFA {
     Tokenizer::Tokenizer(SourceCode _source) : source(std::move(_source)) {}
 
 
     bool Tokenizer::tokenize() {
-        for(auto i = 0u; i < source.length(); ++i)
-            allTokens.add(tokenizeLine(source[i]));
+        for(auto& line : source) {
+            auto tokenline = tokenizeLine(line);
+            if(!tokenline.empty())
+                tokenlist.add(std::move(tokenline));
+        }
         return errorlist.empty();
     }
 
 
     namespace {
         /// @brief Add token and generate error message.
-        void addToken(TokenLine& _target,
-                      const std::string_view& _candidate,
-                      const unsigned _linenum,
-                      const unsigned _linepos,
-                      ErrorList& _errorlist) {
+        void addToken(TokenLine& _dst, const std::string_view& _candidate, const unsigned _line, ErrorList& _errlst) {
             if(_candidate.empty())
                 return;
-            const auto& token = _target.add(_candidate);
+            const auto& token = _dst.add(_candidate, _line);
             if(token.type == TokenType::ERROR)
-                _errorlist.add(_linenum,
-                               _linepos + 1 - _candidate.length(),
-                               std::string("Invalid token: ") + std::string(token.token));
+                _errlst.add(_line, ErrorType::INVALID_TOKEN, token.token);
+            else if(token.type == TokenType::UNSUPPORTED_CHAR_CANDIDATE)
+                _errlst.add(_line, ErrorType::UNSUPPORTED_FEATURE, "char candidate " + token.token);
+            else if(token.type == TokenType::UNSUPPORTED_UINT32 || token.type == TokenType::UNSUPPORTED_INT32)
+                _errlst.add(_line, ErrorType::UNSUPPORTED_FEATURE, "32-bit immediate " + token.token);
         }
 
         /// @brief Add token constructed by buffer to line. buffer is cleared afterwards.
-        void pushBuffer(TokenLine& _target,
-                        StringViewBuffer& _buffer,
-                        const unsigned _linenum,
-                        const unsigned _linepos,
-                        ErrorList& _errorlist) {
-            addToken(_target, _buffer.toSV(), _linenum, _linepos, _errorlist);
-            _buffer.softclear();
+        void pushBuffer(TokenLine& _dst, StringViewBuffer& _buf, const unsigned _line, ErrorList& _errlst) {
+            addToken(_dst, _buf.toSV(), _line, _errlst);
+            _buf.softclear();
         }
     }
 
 
-#define ADD_TOKEN(candidate) addToken(tokenline, candidate, linenum, linepos, errorlist)
-#define PUSH_BUFFER pushBuffer(tokenline, tokenbuffer, linenum, linepos, errorlist)
+#define ADD_TOKEN(candidate) addToken(tokenline, candidate, line, errorlist)
+#define PUSH_BUFFER pushBuffer(tokenline, tokenbuffer, line, errorlist)
 
     TokenLine Tokenizer::tokenizeLine(const SourceLine& _sourceline) {
         TokenLine tokenline;
-        const std::string_view linecode(_sourceline.linecode);
-        const auto linenum = _sourceline.linenum;
+        const std::string_view linecode(_sourceline.code);
+        const auto line = _sourceline.line;
         const auto len = linecode.length();
         if(!len)
             return tokenline;
 
         StringViewBuffer tokenbuffer(linecode);
 
-        for(auto linepos = 0u; linepos < len; ++linepos) {
-            switch(linecode[linepos]) {
+        for(auto column = 0u; column < len; ++column) {
+            switch(linecode[column]) {
                 case '#': // comment
                     PUSH_BUFFER;
-                    ADD_TOKEN(linecode.substr(linepos));
-                    linepos = len;
+                    ADD_TOKEN(linecode.substr(column));
+                    column = len;
                     break;
 
                 case ' ':
@@ -72,16 +68,14 @@ namespace MOFA {
 
                 case ':':
                 case '(':
-                case ')':
-                case '[':
-                case ']': // symbol
+                case ')': // mark
                     PUSH_BUFFER;
-                    ADD_TOKEN(linecode.substr(linepos, 1));
+                    ADD_TOKEN(linecode.substr(column, 1));
                     break;
 
                 case '$': // prospective register
                     PUSH_BUFFER;
-                    tokenbuffer.append(linepos);
+                    tokenbuffer.append(column);
                     break;
 
 
@@ -90,8 +84,8 @@ namespace MOFA {
                     {
                         auto escape = true;
                         do {
-                            const auto preview = linecode[linepos];
-                            tokenbuffer.append(linepos);
+                            const auto preview = linecode[column];
+                            tokenbuffer.append(column);
                             if(escape)
                                 escape = false;
                             else {
@@ -102,18 +96,18 @@ namespace MOFA {
                                     break;
                                 }
                             }
-                            ++linepos;
-                        } while(linepos < len);
+                            ++column;
+                        } while(column < len);
                     }
                     break;
 
                 default:
-                    tokenbuffer.append(linepos);
+                    tokenbuffer.append(column);
                     break;
             }
         }
 
-        pushBuffer(tokenline, tokenbuffer, linenum, len, errorlist);
+        PUSH_BUFFER;
 
         return tokenline;
     }

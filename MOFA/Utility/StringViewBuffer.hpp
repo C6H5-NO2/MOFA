@@ -8,10 +8,10 @@ namespace MOFA {
                                                          count(0),
                                                          base(_base) {}
 
-        void append(const unsigned _pos) noexcept {
+        void append(const unsigned _col) noexcept {
             ++count;
             if(count == 1)
-                offset = _pos;
+                offset = _col;
         }
 
         void softclear() noexcept {

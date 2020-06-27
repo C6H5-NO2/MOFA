@@ -5,10 +5,10 @@ namespace MOFA {
     template<typename _T>
     class AddOnlyVector {
     public:
-        //AddOnlyVector(const unsigned _capacity = 0) : vec(_capacity) {}
-
         template<typename... _V>
         decltype(auto) add(_V&&... _v) { return vec.emplace_back(std::forward<_V>(_v)...); }
+
+        void clear() noexcept { vec.clear(); }
 
         unsigned length() const noexcept { return vec.size(); }
 
@@ -16,10 +16,9 @@ namespace MOFA {
 
         const auto& operator[](const unsigned _pos) const { return vec[_pos]; }
 
+        auto begin() const noexcept { return vec.cbegin(); }
 
-        //auto cbegin() const noexcept { return vec.cbegin(); }
-
-        //auto cend() const noexcept { return vec.cend(); }
+        auto end() const noexcept { return vec.cend(); }
 
     protected:
         std::vector<_T> vec;

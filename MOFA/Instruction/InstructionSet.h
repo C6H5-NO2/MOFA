@@ -1,12 +1,14 @@
 #pragma once
-#include "Instruction.h"
+#include "Instruction.hpp"
 #include <string_view>
 
-namespace  MOFA {
+namespace MOFA {
     class InstructionSet {
     public:
         InstructionSet();
-        ~InstructionSet() { puts("instr dtor"); }
-        Instruction findInstr(const std::string_view _name) const noexcept;
+        Instruction findInstruction(const std::string_view _name) const noexcept;
+
+    private:
+        Instruction instructions[31];
     };
 }

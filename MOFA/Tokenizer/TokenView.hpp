@@ -4,4 +4,5 @@
 namespace MOFA {
     struct Token;
     using TokenLine = AddOnlyVector<Token>;
+    using TokenList = AddOnlyVector<TokenLine>;
 }
