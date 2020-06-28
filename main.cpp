@@ -1,4 +1,6 @@
 #include "MOFA/Utility/ParseOptions.h"
+#include "MOFA/Utility/ErrorMessage.hpp"
+#include "MOFA/Tokenizer/Token.h"
 #include "MOFA/Tokenizer/Tokenizer.h"
 #include "MOFA/Assembler/Assembler.h"
 #include "MOFA/Utility/Logger.h"
@@ -44,6 +46,10 @@ int main(int argc, char** argv) {
         std::cout << "Failed to open file: " << output << std::endl;
         return 0;
     }
+
+    ofs << std::hex;
+    for(auto code : assembler.getMachineCode())
+        ofs << code << std::endl;
 
     return 0;
 }

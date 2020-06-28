@@ -2,14 +2,19 @@
 #include "../Instruction/InstructionSet.h"
 #include "../Register/RegisterFile.h"
 
-namespace MOFA::Global {
-    const std::unique_ptr<InstructionSet>& getInstructionSet() {
-        static std::unique_ptr<InstructionSet> instrset(new InstructionSet);
-        return instrset;
+namespace MOFA {
+    std::unique_ptr<const InstructionSet> Global::instrset(new InstructionSet);
+    std::unique_ptr<const RegisterFile> Global::regfile(new RegisterFile);
+
+    const InstructionSet& Global::getInstructionSet() noexcept {
+        if(!instrset)
+            instrset = std::make_unique<const InstructionSet>();
+        return *instrset;
     }
 
-    const std::unique_ptr<RegisterFile>& getRegisterFile() {
-        static std::unique_ptr<RegisterFile> regfile(new RegisterFile);
-        return regfile;
+    const RegisterFile& Global::getRegisterFile() noexcept {
+        if(!regfile)
+            regfile = std::make_unique<const RegisterFile>();
+        return *regfile;
     }
 }

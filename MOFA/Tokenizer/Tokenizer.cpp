@@ -8,6 +8,8 @@ namespace MOFA {
 
 
     bool Tokenizer::tokenize() {
+        tokenlist.clear();
+        errorlist.clear();
         for(auto& line : source) {
             auto tokenline = tokenizeLine(line);
             if(!tokenline.empty())
@@ -17,30 +19,14 @@ namespace MOFA {
     }
 
 
-    namespace {
-        /// @brief Add token and generate error message.
-        void addToken(TokenLine& _dst, const std::string_view& _candidate, const unsigned _line, ErrorList& _errlst) {
-            if(_candidate.empty())
-                return;
-            const auto& token = _dst.add(_candidate, _line);
-            if(token.type == TokenType::ERROR)
-                _errlst.add(_line, ErrorType::INVALID_TOKEN, token.token);
-            else if(token.type == TokenType::UNSUPPORTED_CHAR_CANDIDATE)
-                _errlst.add(_line, ErrorType::UNSUPPORTED_FEATURE, "char candidate " + token.token);
-            else if(token.type == TokenType::UNSUPPORTED_UINT32 || token.type == TokenType::UNSUPPORTED_INT32)
-                _errlst.add(_line, ErrorType::UNSUPPORTED_FEATURE, "32-bit immediate " + token.token);
-        }
-
-        /// @brief Add token constructed by buffer to line. buffer is cleared afterwards.
-        void pushBuffer(TokenLine& _dst, StringViewBuffer& _buf, const unsigned _line, ErrorList& _errlst) {
-            addToken(_dst, _buf.toSV(), _line, _errlst);
-            _buf.softclear();
-        }
-    }
+    const TokenList& Tokenizer::getTokenList() const noexcept { return tokenlist; }
 
 
-#define ADD_TOKEN(candidate) addToken(tokenline, candidate, line, errorlist)
-#define PUSH_BUFFER pushBuffer(tokenline, tokenbuffer, line, errorlist)
+    const ErrorList& Tokenizer::getErrorList() const noexcept { return errorlist; }
+
+
+#define ADD_TOKEN(candidate) addToken(tokenline, candidate, line)
+#define PUSH_BUFFER pushBuffer(tokenline, tokenbuffer, line)
 
     TokenLine Tokenizer::tokenizeLine(const SourceLine& _sourceline) {
         TokenLine tokenline;
@@ -110,5 +96,28 @@ namespace MOFA {
         PUSH_BUFFER;
 
         return tokenline;
+    }
+
+
+    void Tokenizer::addToken(TokenLine& _dst, const std::string_view& _candidate, const unsigned _line) {
+        if(_candidate.empty())
+            return;
+        const auto& token = _dst.add(_candidate, _line);
+        if(token.type == TokenType::ERROR) {
+            errorlist.add(_line, ErrorType::INVALID_TOKEN, token.token);
+            return;
+        }
+
+        // todo: delete these after support
+        if(token.type == TokenType::UNSUPPORTED_CHAR_CANDIDATE)
+            errorlist.add(_line, ErrorType::UNSUPPORTED_FEATURE, "char candidate " + token.token);
+        else if(token.type == TokenType::UNSUPPORTED_UINT32 || token.type == TokenType::UNSUPPORTED_INT32)
+            errorlist.add(_line, ErrorType::UNSUPPORTED_FEATURE, "32-bit immediate " + token.token);
+    }
+
+
+    void Tokenizer::pushBuffer(TokenLine& _dst, StringViewBuffer& _buf, const unsigned _line) {
+        addToken(_dst, _buf.toSV(), _line);
+        _buf.softclear();
     }
 }

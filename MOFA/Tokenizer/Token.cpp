@@ -32,7 +32,7 @@ namespace MOFA {
 
             // is register?
             if(firstchr == '$') {
-                auto reg = Global::getRegisterFile()->findRegister(_candidate);
+                auto reg = Global::getRegisterFile().findRegister(_candidate);
                 if(reg.no < 32)
                     return TokenType::GEN_PUR_REG;
                 return TokenType::ERROR;
@@ -64,7 +64,7 @@ namespace MOFA {
             }
 
             // is instruction?
-            if(Global::getInstructionSet()->findInstruction(_candidate).name != nullptr)
+            if(Global::getInstructionSet().findInstruction(_candidate).name != nullptr)
                 return TokenType::INSTRUCTION;
 
             // is label?

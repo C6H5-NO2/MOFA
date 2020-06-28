@@ -13,22 +13,21 @@ namespace MOFA {
 
     inline const char* to_string(ErrorType e) {
         switch(e) {
-            case ErrorType::INVALID_TOKEN: return "INVALID_TOKEN";
-            case ErrorType::INVALID_INSTURCTION: return "INVALID_INSTURCTION";
-            case ErrorType::INVALID_OPERAND: return "INVALID_OPERAND";
-            case ErrorType::ALREADY_DEFINED: return "ALREADY_DEFINED";
-            case ErrorType::UNSUPPORTED_FEATURE: return "UNSUPPORTED_FEATURE";
+            case ErrorType::INVALID_TOKEN: return "INVALID TOKEN";
+            case ErrorType::INVALID_INSTURCTION: return "INVALID INSTURCTION";
+            case ErrorType::INVALID_OPERAND: return "INVALID OPERAND";
+            case ErrorType::ALREADY_DEFINED: return "ALREADY DEFINED";
+            case ErrorType::UNSUPPORTED_FEATURE: return "UNSUPPORTED FEATURE";
             default: return "unknown";
         }
     }
 
 
     struct ErrorMessage {
-        ErrorMessage(const unsigned _line,
-                     const ErrorType _type,
-                     std::string _info) : line(_line),
-                                          type(_type),
-                                          info(std::move(_info)) {}
+        ErrorMessage(const unsigned _line, const ErrorType _type, std::string _info)
+            : line(_line),
+              type(_type),
+              info(std::move(_info)) {}
 
         const unsigned line;
         const ErrorType type;

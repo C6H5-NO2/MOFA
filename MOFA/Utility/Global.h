@@ -5,8 +5,12 @@ namespace MOFA {
     class InstructionSet;
     class RegisterFile;
 
-    namespace Global {
-        const std::unique_ptr<InstructionSet>& getInstructionSet();
-        const std::unique_ptr<RegisterFile>& getRegisterFile();
-    }
+    struct Global {
+        static const InstructionSet& getInstructionSet() noexcept;
+        static const RegisterFile& getRegisterFile() noexcept;
+
+    private:
+        static std::unique_ptr<const InstructionSet> instrset;
+        static std::unique_ptr<const RegisterFile> regfile;
+    };
 }

@@ -9,9 +9,9 @@ namespace MOFA {
     std::pair<std::string, std::string> parseOptions(int _argc, char** _argv) {
         bpo::options_description desc("Accepted options");
         desc.add_options()
-            ("help,h", "display help message")
-            ("input,i", bpo::value<std::string>(), "input file")
-            ("output,o", bpo::value<std::string>(), "output file. If not specified, output to a .hex");
+            ("help,h", "Display help message.")
+            ("input,i", bpo::value<std::string>(), "Input file name. Positional option.")
+            ("output,o", bpo::value<std::string>(), "Optional output file name. Replace extension by '.hex' unless specified.");
 
         bpo::positional_options_description pdesc;
         pdesc.add("input", 1);
