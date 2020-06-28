@@ -9,14 +9,12 @@ namespace MOFA {
         PAREN_L,
         PAREN_R,
         GEN_PUR_REG,
-        UINT5,
-        UINT16,
-        INT16,
+        IMM5,
+        IMM16,
         INSTRUCTION,
         LABEL,
         UNSUPPORTED_CHAR_CANDIDATE,
-        UNSUPPORTED_UINT32,
-        UNSUPPORTED_INT32
+        UNSUPPORTED_IMM32
     };
 
     inline const char* to_string(TokenType e) {
@@ -27,14 +25,12 @@ namespace MOFA {
             case TokenType::PAREN_L: return "PAREN_L";
             case TokenType::PAREN_R: return "PAREN_R";
             case TokenType::GEN_PUR_REG: return "GEN_PUR_REG";
-            case TokenType::UINT5: return "UINT5";
-            case TokenType::UINT16: return "UINT16";
-            case TokenType::INT16: return "INT16";
+            case TokenType::IMM5: return "IMM5";
+            case TokenType::IMM16: return "IMM16";
             case TokenType::INSTRUCTION: return "INSTRUCTION";
             case TokenType::LABEL: return "LABEL";
             case TokenType::UNSUPPORTED_CHAR_CANDIDATE: return "UNSUPPORTED_CHAR_CANDIDATE";
-            case TokenType::UNSUPPORTED_UINT32: return "UNSUPPORTED_UINT32";
-            case TokenType::UNSUPPORTED_INT32: return "UNSUPPORTED_INT32";
+            case TokenType::UNSUPPORTED_IMM32: return "UNSUPPORTED_IMM32";
             default: return "unknown";
         }
     }

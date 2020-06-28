@@ -40,7 +40,7 @@ namespace MOFA {
                 }
                 if(token.type == TokenType::LABEL) {
                     if(len < idx + 2 || tokenline[idx + 1].type != TokenType::COLON) {
-                        errorlist.add(token.line, ErrorType::INVALID_INSTURCTION, token.token);
+                        errorlist.add(token.line, ErrorType::INVALID_INSTRUCTION, token.token);
                         break;
                     }
                     ++idx; // skip colon
@@ -51,7 +51,7 @@ namespace MOFA {
                     }
                 }
                 else {
-                    errorlist.add(token.line, ErrorType::INVALID_INSTURCTION, token.token);
+                    errorlist.add(token.line, ErrorType::INVALID_INSTRUCTION, token.token);
                     break;
                 }
             }
@@ -80,13 +80,13 @@ namespace MOFA {
                                 return parseFormat2(tokenline, idx, instr.opcode);
                             case InstructionFormat::R_RS:
                                 return parseFormat3(tokenline, idx, instr.opcode);
-                            case InstructionFormat::I_RT_RS_IMM16:
+                            case InstructionFormat::I_RT_RS_IMM16S:
                                 return parseFormat4(tokenline, idx, instr.opcode);
                             case InstructionFormat::I_RT_RS_IMM16U:
                                 return parseFormat5(tokenline, idx, instr.opcode);
                             case InstructionFormat::I_RT_IMM16U:
                                 return parseFormat6(tokenline, idx, instr.opcode);
-                            case InstructionFormat::I_RT_IMM16_RS:
+                            case InstructionFormat::I_RT_IMM16S_RS:
                                 return parseFormat7(tokenline, idx, instr.opcode);
                             case InstructionFormat::I_RS_RT_LABEL:
                                 return parseFormat8(tokenline, idx, instr.opcode, pc);
@@ -146,6 +146,28 @@ namespace MOFA {
             return _opcode << 26
                    | (_addr & 0x3ffffff);
         }
+
+        bool isSignedInt16(const Token& _token) {
+            switch(_token.type) {
+                case TokenType::IMM5:
+                    return true;
+                case TokenType::IMM16:
+                    return std::strtoll(_token.token.c_str(), nullptr, 0) <= INT16_MAX;
+                default:
+                    return false;
+            }
+        }
+
+        bool isUnsignedint16(const Token& _token) {
+            switch(_token.type) {
+                case TokenType::IMM5:
+                    return true;
+                case TokenType::IMM16:
+                    return std::strtoll(_token.token.c_str(), nullptr, 0) >= 0;
+                default:
+                    return false;
+            }
+        }
     }
 
 
@@ -177,7 +199,7 @@ namespace MOFA {
         const auto &t1 = _tokenline[_idx + 1], &t2 = _tokenline[_idx + 2], &t3 = _tokenline[_idx + 3];
         if(t1.type == TokenType::GEN_PUR_REG
            && t2.type == TokenType::GEN_PUR_REG
-           && t3.type == TokenType::UINT5) {
+           && t3.type == TokenType::IMM5) {
             const auto rd = Global::getRegisterFile().findRegister(t1.token).no,
                        rt = Global::getRegisterFile().findRegister(t2.token).no;
             const auto shamt = std::strtoll(t3.token.c_str(), nullptr, 0);
@@ -233,7 +255,7 @@ namespace MOFA {
         const auto &t1 = _tokenline[_idx + 1], &t2 = _tokenline[_idx + 2], &t3 = _tokenline[_idx + 3];
         if(t1.type == TokenType::GEN_PUR_REG
            && t2.type == TokenType::GEN_PUR_REG
-           && (t3.type == TokenType::UINT5 || t3.type == TokenType::INT16)) {
+           && isSignedInt16(t3)) {
             const auto rt = Global::getRegisterFile().findRegister(t1.token).no,
                        rs = Global::getRegisterFile().findRegister(t2.token).no;
             const auto imm = std::strtoll(t3.token.c_str(), nullptr, 0);
@@ -253,7 +275,7 @@ namespace MOFA {
         const auto &t1 = _tokenline[_idx + 1], &t2 = _tokenline[_idx + 2], &t3 = _tokenline[_idx + 3];
         if(t1.type == TokenType::GEN_PUR_REG
            && t2.type == TokenType::GEN_PUR_REG
-           && (t3.type == TokenType::UINT5 || t3.type == TokenType::UINT16)) {
+           && isUnsignedint16(t3)) {
             const auto rt = Global::getRegisterFile().findRegister(t1.token).no,
                        rs = Global::getRegisterFile().findRegister(t2.token).no;
             const auto imm = std::strtoll(t3.token.c_str(), nullptr, 0);
@@ -272,7 +294,7 @@ namespace MOFA {
 
         const auto &t1 = _tokenline[_idx + 1], &t2 = _tokenline[_idx + 2];
         if(t1.type == TokenType::GEN_PUR_REG
-           && (t2.type == TokenType::UINT5 || t2.type == TokenType::UINT16)) {
+           && isUnsignedint16(t2)) {
             const auto rt = Global::getRegisterFile().findRegister(t1.token).no;
             const auto imm = std::strtoll(t2.token.c_str(), nullptr, 0);
             const auto code = parseTypeI(_opcode, 0, rt, imm);
@@ -294,7 +316,7 @@ namespace MOFA {
                    &t4 = _tokenline[_idx + 4],
                    &t5 = _tokenline[_idx + 5];
         if(t1.type == TokenType::GEN_PUR_REG
-           && (t2.type == TokenType::UINT5 || t2.type == TokenType::INT16)
+           && isSignedInt16(t2)
            && t3.type == TokenType::PAREN_L
            && t4.type == TokenType::GEN_PUR_REG
            && t5.type == TokenType::PAREN_R) {

@@ -46,19 +46,12 @@ namespace MOFA {
             if(_candidate.data() < endptr) {
                 // if it is a full valid match
                 if(!errno && _candidate.data() + _candidate.length() == endptr) {
-                    if(llval >= 0) {
-                        if(llval <= 31)
-                            return TokenType::UINT5;
-                        if(llval <= UINT16_MAX)
-                            return TokenType::UINT16;
-                        if(llval <= UINT32_MAX)
-                            return TokenType::UNSUPPORTED_UINT32;
-                        return TokenType::ERROR;
-                    }
-                    if(llval >= INT16_MIN)
-                        return TokenType::INT16;
-                    if(llval >= INT32_MIN)
-                        return TokenType::UNSUPPORTED_INT32;
+                    if(llval >= 0 && llval <= 31)
+                        return TokenType::IMM5;
+                    if(llval >= INT16_MIN && llval <= UINT16_MAX)
+                        return TokenType::IMM16;
+                    if(llval >= INT32_MIN && llval <= UINT32_MAX)
+                        return TokenType::UNSUPPORTED_IMM32;
                 }
                 return TokenType::ERROR;
             }

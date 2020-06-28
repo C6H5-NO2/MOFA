@@ -111,7 +111,7 @@ namespace MOFA {
         // todo: delete these after support
         if(token.type == TokenType::UNSUPPORTED_CHAR_CANDIDATE)
             errorlist.add(_line, ErrorType::UNSUPPORTED_FEATURE, "char candidate " + token.token);
-        else if(token.type == TokenType::UNSUPPORTED_UINT32 || token.type == TokenType::UNSUPPORTED_INT32)
+        else if(token.type == TokenType::UNSUPPORTED_IMM32)
             errorlist.add(_line, ErrorType::UNSUPPORTED_FEATURE, "32-bit immediate " + token.token);
     }
 

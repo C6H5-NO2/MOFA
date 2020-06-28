@@ -6,6 +6,7 @@
 #include "MOFA/Utility/Logger.h"
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 
 using namespace MOFA;
 
@@ -49,7 +50,9 @@ int main(int argc, char** argv) {
 
     ofs << std::hex;
     for(auto code : assembler.getMachineCode())
-        ofs << code << std::endl;
+        ofs << std::setw(8) << std::setfill('0') << code << std::endl;
+
+    std::cout << "Success" << std::endl;
 
     return 0;
 }

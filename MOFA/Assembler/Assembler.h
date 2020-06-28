@@ -30,7 +30,7 @@ namespace MOFA {
         void assemblePass2();
 
 
-        /// @todo move all parsers to separate class
+        /// @todo move all parsers to a separate class
         /// @brief First element is the corresponding machine code.\n
         /// Second element is the delta of _idx after parsing the instruction.
         /// i.e. #operands + 1. Zero indicates an error occurs.
@@ -48,7 +48,7 @@ namespace MOFA {
         /// @brief InstructionFormat::R_RS
         ParseResult parseFormat3(const TokenLine& _tokenline, const unsigned _idx, const std::uint8_t _func) const;
 
-        /// @brief InstructionFormat::I_RT_RS_IMM16
+        /// @brief InstructionFormat::I_RT_RS_IMM16S
         ParseResult parseFormat4(const TokenLine& _tokenline, const unsigned _idx, const std::uint8_t _opcode) const;
 
         /// @brief InstructionFormat::I_RT_RS_IMM16U
@@ -57,7 +57,7 @@ namespace MOFA {
         /// @brief InstructionFormat::I_RT_IMM16U
         ParseResult parseFormat6(const TokenLine& _tokenline, const unsigned _idx, const std::uint8_t _opcode) const;
 
-        /// @brief InstructionFormat::I_RT_IMM16_RS
+        /// @brief InstructionFormat::I_RT_IMM16S_RS
         ParseResult parseFormat7(const TokenLine& _tokenline, const unsigned _idx, const std::uint8_t _opcode) const;
 
         /// @brief InstructionFormat::I_RS_RT_LABEL

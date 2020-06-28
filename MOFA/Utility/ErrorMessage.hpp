@@ -5,7 +5,7 @@
 namespace MOFA {
     enum class ErrorType {
         INVALID_TOKEN,
-        INVALID_INSTURCTION,
+        INVALID_INSTRUCTION,
         INVALID_OPERAND,
         ALREADY_DEFINED,
         UNSUPPORTED_FEATURE
@@ -13,11 +13,11 @@ namespace MOFA {
 
     inline const char* to_string(ErrorType e) {
         switch(e) {
-            case ErrorType::INVALID_TOKEN: return "INVALID TOKEN";
-            case ErrorType::INVALID_INSTURCTION: return "INVALID INSTURCTION";
-            case ErrorType::INVALID_OPERAND: return "INVALID OPERAND";
-            case ErrorType::ALREADY_DEFINED: return "ALREADY DEFINED";
-            case ErrorType::UNSUPPORTED_FEATURE: return "UNSUPPORTED FEATURE";
+            case ErrorType::INVALID_TOKEN: return "Invalid token";
+            case ErrorType::INVALID_INSTRUCTION: return "Invalid instruction";
+            case ErrorType::INVALID_OPERAND: return "Invalid operand";
+            case ErrorType::ALREADY_DEFINED: return "Already defined";
+            case ErrorType::UNSUPPORTED_FEATURE: return "Unsupported feature";
             default: return "unknown";
         }
     }
